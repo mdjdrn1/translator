@@ -42,7 +42,7 @@ public class App {
         System.out.println("STEP 1/3: Parsing input file to list.");
         List<String> foreignWords = parseXlsToList(inputFilePath);
         System.out.println("STEP 2/3: Translating words list.");
-        Map<String, String> words = getTranslatedWords(new DikiTranslator(), foreignWords);
+        ConcurrentHashMap<String, String> words = getTranslatedWords(new DikiTranslator(), foreignWords);
         System.out.println("STEP 3/3: Saving output file.");
         createNewFile(words, outputFilePath);
     }
@@ -79,8 +79,8 @@ public class App {
         return workbook.getSheetAt(0);
     }
 
-    private static Map<String, String> getTranslatedWords(Translator translator, List<String> originalWords) {
-        Map<String, String> translatedWords = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> getTranslatedWords(Translator translator, List<String> originalWords) {
+        ConcurrentHashMap<String, String> translatedWords = new ConcurrentHashMap<>();
 
         originalWords.parallelStream().forEach((word) -> {
             String newWord = translator.translate(word);
