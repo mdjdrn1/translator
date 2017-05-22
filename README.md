@@ -24,8 +24,9 @@ java -jar translator-1.0-jar-with-dependencies.jar <INPUT_FILE> -o <OUTPUT_FILE>
 ```
 ### Arguments
 + ```INPUT_FILE```: required - input file path
-+ ```-o```: optional - flag for OUTPUT_FILE
-+ ```OUTPUT_FILE```: required ONLY when specified "-o" flag - output file path
++ ```-o```: optional - flag for ```OUTPUT_FILE```
++ ```OUTPUT_FILE```: required ONLY when specified ```-o``` flag - output file path
+**NOTE:** if you didn't specify ```OUTPUT_FILE```, then it will be created with following scheme: ```<INPUT_FILE>+_translated```. E.g. input file: ```foo.xls```, then output file will be: ```foo_translated.xls```
 
 ## 3. Input file
 Allowed input file formats:
@@ -51,4 +52,4 @@ E.g.
 | 2|	word2	|	translatedWord2	|	|
 | 3|	word3	|	translatedWord3 |	|
 
-NOTE: if word doesn't have translation, then translatedWord will be empty!
+**NOTE:** if word doesn't have translation, then translatedWord will be empty!
