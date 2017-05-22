@@ -51,3 +51,4 @@ E.g.
 | 2|	word2	|	translatedWord2	|	|
 | 3|	word3	|	translatedWord3 |	|
 
+NOTE: if word doesn't have translation, then translatedWord will be empty!
