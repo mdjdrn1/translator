@@ -2,7 +2,6 @@ package com.github.mdjdrn1.translator;
 
 import com.github.mdjdrn1.translator.exceptions.ParsingError;
 import com.github.mdjdrn1.translator.exceptions.WritingFileError;
-import com.github.mdjdrn1.translator.utils.Pair;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -15,6 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class App {
     public static void main(String[] args) {
@@ -38,12 +39,12 @@ public class App {
             System.exit(1);
         }
 
-        System.out.println("STEP 1/3: Parsing input file to list...");
+        System.out.println("STEP 1/3: Parsing input file to list.");
         List<String> foreignWords = parseXlsToList(inputFilePath);
-        System.out.println("STEP 2/3: Translating words list...");
-        List<Pair<String, String>> foreignAndTranslatedWords = getTranslatedWords(new DikiTranslator(), foreignWords);
-        System.out.println("STEP 3/3: Saving output file...");
-        createNewFile(foreignAndTranslatedWords, outputFilePath);
+        System.out.println("STEP 2/3: Translating words list.");
+        Map<String, String> words = getTranslatedWords(new DikiTranslator(), foreignWords);
+        System.out.println("STEP 3/3: Saving output file.");
+        createNewFile(words, outputFilePath);
     }
 
     private static boolean isXlsFile(String filePath) {
@@ -78,21 +79,21 @@ public class App {
         return workbook.getSheetAt(0);
     }
 
-    private static List<Pair<String, String>> getTranslatedWords(Translator translator, List<String> originalWords) {
-        List<Pair<String, String>> translatedWords = new ArrayList<>();
+    private static Map<String, String> getTranslatedWords(Translator translator, List<String> originalWords) {
+        Map<String, String> translatedWords = new ConcurrentHashMap<>();
 
         originalWords.parallelStream().forEach((word) -> {
             String newWord = translator.translate(word);
             if (newWord == null) {
                 newWord = "";
             }
-            translatedWords.add(new Pair<>(word, newWord));
+            translatedWords.put(word, newWord);
         });
 
         return translatedWords;
     }
 
-    private static void createNewFile(List<Pair<String, String>> words, String xlsOutputFilePath) {
+    private static void createNewFile(Map<String, String> words, String xlsOutputFilePath) {
         try {
             FileOutputStream file = new FileOutputStream(xlsOutputFilePath);
             Workbook workbook = new XSSFWorkbook();
@@ -108,13 +109,17 @@ public class App {
         }
     }
 
-    private static void addWordsToSheet(List<Pair<String, String>> words, Sheet sheet) {
-        for (int i = 0; i < words.size(); ++i) {
+    private static void addWordsToSheet(Map<String, String> words, Sheet sheet) {
+        int i = 0;
+        int wordsSize = words.size();
+
+        for(Map.Entry<String, String> entry : words.entrySet()) {
             Row currentRow = sheet.createRow(i);
             Cell leftCell = currentRow.createCell(0);
-            leftCell.setCellValue(words.get(i).getFirst());
+            leftCell.setCellValue(entry.getKey());
             Cell rightCell = currentRow.createCell(1);
-            rightCell.setCellValue(words.get(i).getSecond());
+            rightCell.setCellValue(entry.getValue());
+            ++i;
         }
     }
 }
