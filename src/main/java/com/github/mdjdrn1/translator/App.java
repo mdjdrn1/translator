@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +36,7 @@ public class App {
                 outputFilePath = generateOutputFilePath(inputFilePath);
             }
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
-            System.out.println("Invalid parameters!");
+            System.err.println("Invalid parameters!");
             System.exit(1);
         }
 
@@ -80,14 +81,15 @@ public class App {
     }
 
     private static ConcurrentHashMap<String, String> getTranslatedWords(Translator translator, List<String> originalWords) {
+        List<String> synchronizedOriginalList = Collections.synchronizedList(new ArrayList<>(originalWords));
         ConcurrentHashMap<String, String> translatedWords = new ConcurrentHashMap<>();
 
-        originalWords.parallelStream().forEach((word) -> {
-            String newWord = translator.translate(word);
-            if (newWord == null) {
-                newWord = "";
+        synchronizedOriginalList.stream().parallel().parallel().forEach((word) -> {
+            if (translator.translate(word) == null) {
+                translatedWords.put(word, "");
+            } else {
+                translatedWords.put(word, translator.translate(word));
             }
-            translatedWords.put(word, newWord);
         });
 
         return translatedWords;
@@ -113,7 +115,7 @@ public class App {
         int i = 0;
         int wordsSize = words.size();
 
-        for(Map.Entry<String, String> entry : words.entrySet()) {
+        for (Map.Entry<String, String> entry : words.entrySet()) {
             Row currentRow = sheet.createRow(i);
             Cell leftCell = currentRow.createCell(0);
             leftCell.setCellValue(entry.getKey());

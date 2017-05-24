@@ -7,7 +7,7 @@ public class DikiTranslator implements Translator {
     private static final String websiteURL = "https://www.diki.pl/";
 
     @Override
-    public String translate(String word) {
+    public synchronized String translate(String word) {
         String wordAdaptedToURL = adaptWordToURL(word);
         String wordWebsiteURL = websiteURL + wordAdaptedToURL;
 
@@ -37,7 +37,7 @@ public class DikiTranslator implements Translator {
         return newWord;
     }
 
-    private String adaptWordToURL(String word) {
+    private synchronized String adaptWordToURL(String word) {
         return word.trim().replaceAll(" ", "+");
     }
 }
